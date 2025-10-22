@@ -1,0 +1,10 @@
+{
+  "placeholderImages": [
+    {
+      "id": "album-art-placeholder",
+      "description": "A placeholder image for album art.",
+      "imageUrl": "https://picsum.photos/seed/melodyflow/400/400",
+      "imageHint": "music abstract"
+    }
+  ]
+}

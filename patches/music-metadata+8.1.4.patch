@@ -1,0 +1,16 @@
+diff --git a/node_modules/music-metadata/lib/id3v2/ID3v24TagMapper.js b/node_modules/music-metadata/lib/id3v2/ID3v24TagMapper.js
+index 9a01f5c..e3a479a 100644
+--- a/node_modules/music-metadata/lib/id3v2/ID3v24TagMapper.js
++++ b/node_modules/music-metadata/lib/id3v2/ID3v24TagMapper.js
+@@ -169,7 +169,9 @@
+                 break;
+             case 'TMCL': // Musician credits list
+             case 'TIPL': // Involved people list
+-                tag.value.data.readUInt32LE(0);
++                if (Buffer.isBuffer(tag.value.data)) {
++                    tag.value.data.readUInt32LE(0);
++                }
+                 break;
+         }
+     }
+

@@ -1,0 +1,174 @@
+/**
+ * @fileoverview Firestore Security Rules for the music app.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for all data. Each user has a dedicated data tree under `/users/{userId}`, and only the authenticated user can read or write to their own tree.
+ *
+ * Data Structure:
+ * - `/users/{userId}`: Stores public user profile information.
+ * - `/users/{userId}/playlists/{playlistId}`: Stores user-created playlists.
+ * - `/users/{userId}/favorite_songs/{songId}`: Stores user's favorite songs.
+ * - `/users/{userId}/favorite_albums/{albumId}`: Stores user's favorite albums.
+ * - `/users/{userId}/favorite_artists/{artistId}`: Stores user's favorite artists.
+ * - `/users/{userId}/history/{historyId}`: Stores user's playback history.
+ *
+ * Key Security Decisions:
+ * - User listing is disallowed to prevent data scraping.
+ * - All data is private to the user and cannot be accessed by other users unless explicitly shared (not implemented in this initial ruleset).
+ * - The rules prioritize authorization and relational integrity, while relaxing data-shape validation for rapid prototyping.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Controls access to user profile information.
+     * @path /users/{userId}
+     * @allow (create) Authenticated user can create their own profile.
+     * @allow (get, update, delete) Authenticated user can read, update, and delete their own profile.
+     * @deny (create) Non-authenticated user can't create any profile.
+     * @deny (get, update, delete) Authenticated user can't read, update, or delete other users' profiles.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if false; // User listing is disallowed.
+      allow create: if isOwner(userId) && request.resource.data.email == request.auth.token.email;
+      allow update: if isExistingOwner(userId) && request.resource.data.email == resource.data.email;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Controls access to user playlists.
+     * @path /users/{userId}/playlists/{playlistId}
+     * @allow (create) Authenticated user can create playlists under their own user ID.
+     * @allow (get, list, update, delete) Authenticated user can read, list, update, and delete their own playlists.
+     * @deny (create) Authenticated user can't create playlists under other users' IDs.
+     * @deny (get, list, update, delete) Authenticated user can't read, list, update, or delete other users' playlists.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/playlists/{playlistId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Controls access to user's favorite songs.
+     * @path /users/{userId}/favorite_songs/{songId}
+     * @allow (create) Authenticated user can create favorite songs under their own user ID.
+     * @allow (get, list, update, delete) Authenticated user can read, list, update, and delete their own favorite songs.
+     * @deny (create) Authenticated user can't create favorite songs under other users' IDs.
+     * @deny (get, list, update, delete) Authenticated user can't read, list, update, or delete other users' favorite songs.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/favorite_songs/{songId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Controls access to user's favorite albums.
+     * @path /users/{userId}/favorite_albums/{albumId}
+     * @allow (create) Authenticated user can create favorite albums under their own user ID.
+     * @allow (get, list, update, delete) Authenticated user can read, list, update, and delete their own favorite albums.
+     * @deny (create) Authenticated user can't create favorite albums under other users' IDs.
+     * @deny (get, list, update, delete) Authenticated user can't read, list, update, or delete other users' favorite albums.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/favorite_albums/{albumId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Controls access to user's favorite artists.
+     * @path /users/{userId}/favorite_artists/{artistId}
+     * @allow (create) Authenticated user can create favorite artists under their own user ID.
+     * @allow (get, list, update, delete) Authenticated user can read, list, update, and delete their own favorite artists.
+     * @deny (create) Authenticated user can't create favorite artists under other users' IDs.
+     * @deny (get, list, update, delete) Authenticated user can't read, list, update, or delete other users' favorite artists.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/favorite_artists/{artistId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Controls access to user's listening history.
+     * @path /users/{userId}/history/{historyId}
+     * @allow (create) Authenticated user can create history entries under their own user ID.
+     * @allow (get, list, update, delete) Authenticated user can read, list, update, and delete their own history entries.
+     * @deny (create) Authenticated user can't create history entries under other users' IDs.
+     * @deny (get, list, update, delete) Authenticated user can't read, list, update, or delete other users' history entries.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/history/{historyId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}

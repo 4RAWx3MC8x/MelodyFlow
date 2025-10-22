@@ -1,0 +1,147 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile information.",
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "photoURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the user's profile picture."
+        }
+      }
+    },
+    "Playlist": {
+      "title": "Playlist",
+      "description": "A user-created playlist of songs.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the playlist."
+        },
+        "songIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of song IDs in the playlist."
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "FavoriteSong": {
+      "title": "Favorite Song",
+      "description": "Represents a single favorite song.",
+      "type": "object",
+      "properties": {
+        "songId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "songId"
+      ]
+    },
+    "FavoriteAlbum": {
+      "title": "Favorite Album",
+      "description": "Represents a single favorite album.",
+      "type": "object",
+      "properties": {
+        "albumId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "albumId"
+      ]
+    },
+    "FavoriteArtist": {
+      "title": "Favorite Artist",
+      "description": "Represents a single favorite artist.",
+      "type": "object",
+      "properties": {
+        "artistId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "artistId"
+      ]
+    },
+    "History": {
+      "title": "History",
+      "description": "Represents a single played song entry.",
+      "type": "object",
+      "properties": {
+        "songId": {
+          "type": "string"
+        },
+        "playedAt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "songId",
+        "playedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "google.com",
+      "password"
+    ]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Stores public profile information for each user."
+    },
+    "/users/{userId}/playlists/{playlistId}": {
+      "schema": {
+        "$ref": "#/entities/Playlist"
+      },
+      "description": "Stores user-created playlists."
+    },
+    "/users/{userId}/favorite_songs/{songId}": {
+      "schema": {
+        "$ref": "#/entities/FavoriteSong"
+      },
+      "description": "Stores a user's favorite songs."
+    },
+    "/users/{userId}/favorite_albums/{albumId}": {
+      "schema": {
+        "$ref": "#/entities/FavoriteAlbum"
+      },
+      "description": "Stores a user's favorite albums."
+    },
+    "/users/{userId}/favorite_artists/{artistId}": {
+      "schema": {
+        "$ref": "#/entities/FavoriteArtist"
+      },
+      "description": "Stores a user's favorite artists."
+    },
+    "/users/{userId}/history/{historyId}": {
+      "schema": {
+        "$ref": "#/entities/History"
+      },
+      "description": "Stores a user's playback history entries."
+    }
+  }
+}
